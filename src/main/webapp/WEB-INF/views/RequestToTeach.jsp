@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib  uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"  %>
 <%@ page import="java.util.List" %>
 
 
@@ -13,17 +13,7 @@
 <body>
     <%-- Extensive Debugging Section --%>
     <div class="container mt-3">
-        <h3>Debug Information</h3>
 
-        <%-- Check using pure Java --%>
-        <%
-            List availableCoursesList = (List) request.getAttribute("availableCourses");
-            if (availableCoursesList == null) {
-                out.println("<div class='alert alert-danger'>availableCourses is NULL in request attributes</div>");
-            } else {
-                out.println("<div class='alert alert-success'>availableCourses is NOT NULL. Size: " + availableCoursesList.size() + "</div>");
-            }
-        %>
 
     <div class="container mt-5">
         <h2 class="mb-4">Request to Teach Course</h2>
@@ -40,12 +30,6 @@
             </div>
         </c:if>
 
-        <%-- Or add a debug section to show details --%>
-        <c:if test="${not empty availableCourses}">
-            <div class="alert alert-info" role="alert">
-                Number of Courses: ${availableCourses.size()}
-            </div>
-        </c:if>
 
 
         <form action="SubmitCourseRequestServlet" method="post">
@@ -54,8 +38,8 @@
                 <select class="form-select" id="courseSelect" name="courseId" required>
                     <option value="">Choose a Course</option>
                     <c:forEach var="course" items="${availableCourses}">
-                        <option value="${course.id}">
-                            ${course.courseTitle} (${course.courseCode}) - ${course.term}
+                        <option value="${course.getCourseId()}">
+                            ${course.getCourseTitle()} (${course.getCourseCode()}) - ${course.getTerm()}
                         </option>
                     </c:forEach>
                 </select>

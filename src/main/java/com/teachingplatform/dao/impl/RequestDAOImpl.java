@@ -16,7 +16,7 @@ public class RequestDAOImpl implements RequestDAO {
     @Override
     public void insertRequest(CourseRequest request) throws DAOException {
     // using preparedstatement to protect against sql injection
-        String sql = "INSERT INTO Requests (courseId, applicantId, status,createdAt) VALUES (?, ?, ?, ?) ";
+        String sql = "INSERT INTO Requests (course_id, applicant_id, status,created_at) VALUES (?, ?, ?, ?) ";
         try(Connection conn = datasource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
 

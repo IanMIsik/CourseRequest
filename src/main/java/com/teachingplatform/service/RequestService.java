@@ -17,7 +17,7 @@ public class RequestService {
 
     public void submitRequest(CourseRequest request) throws ServiceException {
 
-        // we'll later on implement validation here
+        // Validation should be implemented here.
         try {
             // Inserting request
             requestDAO.insertRequest(request);

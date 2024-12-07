@@ -23,15 +23,14 @@
                     <c:when test="${not empty unreadNotifications}">
                         <div class="list-group">
                             <c:forEach var="notification" items="${unreadNotifications}">
-                                <div class="list-group-item list-group-item-action" data-notification-id="${notification.id}">
+                                <div class="list-group-item list-group-item-action" data-notification-id="${notification.getId()}">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1">Notification</h5>
                                         <small>
-                                            <fmt:formatDate value="${notification.timestamp}"
-                                                           pattern="MMM dd, yyyy HH:mm" />
+                                         <p class="mb-1">${notification.getTimestamp().toString().substring(0, 16).replace('T', ' ')}</p>
                                         </small>
                                     </div>
-                                    <p class="mb-1">${notification.message}</p>
+                                    <p class="mb-1">${notification.getMessage()}</p>
                                 </div>
                             </c:forEach>
                         </div>
@@ -54,11 +53,13 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1">Notification</h5>
                                         <small>
-                                            <fmt:formatDate value="${notification.timestamp}"
-                                                           pattern="MMM dd, yyyy HH:mm" />
+
+
+                                            <p class="mb-1">${notification.getTimestamp().toString().substring(0, 16).replace('T', ' ')}</p>
+
                                         </small>
                                     </div>
-                                    <p class="mb-1">${notification.message}</p>
+                                    <p class="mb-1">${notification.getMessage()}</p>
                                 </div>
                             </c:forEach>
                         </div>
@@ -80,13 +81,17 @@
 
             markAllReadBtn.addEventListener('click', function() {
                 // AJAX call to mark all notifications as read
-                fetch('MarkNotificationsReadServlet', {
+                fetch('/CourseRequest/notifications', {
                     method: 'POST'
                 })
                 .then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    }
+                 if (response.ok) {
+                    // Reload to fetch updated notifications
+                    location.reload();
+                } else {
+                    console.error('Failed to mark notifications as read.');
+                }
+
                 });
             });
         });

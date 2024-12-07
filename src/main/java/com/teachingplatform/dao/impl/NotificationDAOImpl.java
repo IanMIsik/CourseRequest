@@ -20,8 +20,8 @@ public class NotificationDAOImpl implements NotificationDAO {
 
 
     @Override
-    public void addNotification(Notification notification) throws DAOException {
-        String sql = "INSERT INTO Notifications (recipientId, message, timestamp, isRead) VALUES (?, ?, ?, ?)";
+    public void insertNotification(Notification notification) throws DAOException {
+        String sql = "INSERT INTO Notifications (recipient_id, message, created_at, is_read) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -48,10 +48,10 @@ public class NotificationDAOImpl implements NotificationDAO {
     }
 
     @Override
-    public List<Notification> getNotificationsForUser(int userId, boolean unreadOnly) throws DAOException {
+    public List<Notification> getNotificationsByUserId(int userId, boolean unreadOnly) throws DAOException {
         List<Notification> notifications = new ArrayList<>();
-        String sql = unreadOnly ? "SELECT * FROM Notifications WHERE recipientId = ? AND isRead = false ORDER BY timestamp DESC"
-            : "SELECT * FROM Notifications WHERE recipientId = ? ORDER BY timestamp DESC";
+        String sql = unreadOnly ? "SELECT * FROM notifications WHERE recipient_id = ? AND is_read = false ORDER BY created_at DESC"
+            : "SELECT * FROM notifications WHERE recipient_id = ? AND is_read = true ORDER BY created_at DESC";
 
         try( Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)){
@@ -61,12 +61,12 @@ public class NotificationDAOImpl implements NotificationDAO {
             try(ResultSet rs = pstmt.executeQuery()){
                 while (rs.next()){
                     Notification notification = new Notification(
-                        rs.getInt("recipientId"),
+                        rs.getInt("recipient_id"),
                         rs.getString("message")
                     );
 
                     notification.setId(rs.getInt("id"));
-                    if(!rs.getBoolean("isRead")){
+                    if(!rs.getBoolean("is_read")){
                         notification.markAsRead();
                     }
 
@@ -86,4 +86,55 @@ public class NotificationDAOImpl implements NotificationDAO {
         }
         return notifications ;
     }
+    @Override
+    public void markNotificationAsRead(int notificationId) throws DAOException {
+        String sql = "UPDATE Notifications SET is_read = true WHERE id = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, notificationId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DAOException("Error marking notification as read", e);
+        }
+    }
+//    public List<Notification> getNotificationsByRecipient(int recipientId, boolean unreadOnly) throws DAOException {
+//        List<Notification> notifications = new ArrayList<>();
+//        String sql = unreadOnly ? "SELECT * FROM Notifications WHERE recipientId = ? AND isRead = false ORDER BY timestamp DESC"
+//            : "SELECT * FROM Notifications WHERE recipientId = ? ORDER BY timestamp DESC";
+//
+//        try( Connection conn = dataSource.getConnection();
+//             PreparedStatement pstmt = conn.prepareStatement(sql)){
+//
+//            pstmt.setInt(1, recipientId);
+//
+//            try(ResultSet rs = pstmt.executeQuery()){
+//                while (rs.next()){
+//                    Notification notification = new Notification(
+//                        rs.getInt("recipientId"),
+//                        rs.getString("message")
+//                    );
+//
+//                    notification.setId(rs.getInt("id"));
+//                    if(!rs.getBoolean("isRead")){
+//                        notification.markAsRead();
+//                    }
+//
+//                    notifications.add(notification);
+//
+//
+//
+//                }
+//            }
+//            catch(SQLException e){
+//
+//                throw new DAOException("Failed to get notifications", e);
+//            }
+//        }
+//        catch(SQLException e){
+//            throw new DAOException("Error Retrieving notifications", e);
+//        }
+//        return notifications ;
+//    }
 }

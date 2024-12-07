@@ -1,10 +1,13 @@
 package com.teachingplatform.controller;
 
 
+import com.teachingplatform.dao.impl.NotificationDAOImpl;
 import com.teachingplatform.dao.impl.RequestDAOImpl;
+import com.teachingplatform.dao.interfaces.NotificationDAO;
 import com.teachingplatform.dao.interfaces.RequestDAO;
 import com.teachingplatform.model.Course;
 import com.teachingplatform.model.CourseRequest;
+import com.teachingplatform.service.NotificationService;
 import com.teachingplatform.service.RequestService;
 import com.teachingplatform.util.DatabaseConnection;
 
@@ -21,6 +24,7 @@ import java.util.List;
 @WebServlet("/SubmitCourseRequestServlet")
 public class RequestToTeachServlet extends HttpServlet {
     private RequestService requestService;
+    private NotificationService notificationService;
 
 
     @Override
@@ -32,6 +36,11 @@ public class RequestToTeachServlet extends HttpServlet {
 
         // Initialize services
         requestService = new RequestService(requestDAO);
+
+
+        NotificationDAO notificationDAO = new NotificationDAOImpl(dataSource);
+        notificationService = new NotificationService(notificationDAO);
+
 
 
     }
@@ -58,18 +67,23 @@ public class RequestToTeachServlet extends HttpServlet {
             //User currentUser = (User) request.getSession().getAttribute("currentUser");
 
             // using user id 1 for testing
+            // Get user id from the session as shown above
+            int userId = 1;
             // Create course request
             CourseRequest courseRequest = new CourseRequest(
                 Integer.parseInt(request.getParameter("courseId")),
-                1
+                userId
             );
 
 
             // Submit request
             requestService.submitRequest(courseRequest);
+            notificationService.sendNotification(userId, "A request to teach course with id "+courseRequest.getCourseId()+" by applicant with user ID "+courseRequest.getApplicantId()+" has been submitted.");
+
+
 
             // Redirect with success message
-            response.sendRedirect("notifications?message=requestSubmitted");
+            response.sendRedirect("notifications");
         } catch (Exception e) {
             // Handle errors
             request.setAttribute("errorMessage", "Failed to submit request: " + e.getMessage());
